@@ -2,12 +2,16 @@ package xyz.connorchickenway.stella.tab.entry;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import xyx.connorchickenway.stella.legacy.tab.LegacyTab;
+import xyx.connorchickenway.stella.legacy.util.LegacyUtils;
 import xyz.connorchickenway.stella.tab.PlayerTab;
 import xyz.connorchickenway.stella.tab.Tab;
 import xyz.connorchickenway.stella.tab.skin.Skin;
 
 import java.util.UUID;
 import java.util.function.Function;
+
+import static xyx.connorchickenway.stella.legacy.util.LegacyUtils.is1_7;
 
 public class TabEntry {
 
@@ -135,6 +139,14 @@ public class TabEntry {
             }
             Player player = ((PlayerTab)tab).getPlayer();
             String text = null;
+            if (tab instanceof LegacyTab) {
+                if (is1_7(player))
+                {
+                    if (x >= 3)
+                        return null;
+                    text = this.text != null ? LegacyUtils.prefixAndSuffix(this.text.apply(player)) : "";
+                }
+            }
             if (text == null)
                 text = this.text != null ? this.text.apply(player) : "";
             return new TabEntry(
