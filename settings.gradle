@@ -1,1 +1,3 @@
-rootProject.name = 'stella'
+rootProject.name = "stella"
+include('core')
+

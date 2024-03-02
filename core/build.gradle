@@ -1,0 +1,10 @@
+plugins {
+    id('java')
+}
+
+group = 'xyz.connorchickenway'
+version = '0.1'
+
+dependencies {
+    compileOnly('org.spigotmc:spigot:1.13.2-R0.1-SNAPSHOT')
+}
