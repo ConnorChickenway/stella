@@ -89,4 +89,8 @@ public class TabModifier {
 
     }
 
+    public static TabModifierBuilder builder() {
+        return new TabModifierBuilder();
+    }
+
 }

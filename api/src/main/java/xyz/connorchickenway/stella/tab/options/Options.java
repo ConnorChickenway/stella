@@ -4,7 +4,7 @@ public class Options {
 
     private boolean async;
     private long delay;
-    private boolean addListener;
+    private boolean listener;
 
     private Options() {}
 
@@ -16,14 +16,14 @@ public class Options {
         return this.delay;
     }
 
-    public boolean addListener() {
-        return addListener;
+    public boolean listener() {
+        return listener;
     }
 
     public static class OptionsBuilder {
         private boolean async;
         private long delay;
-        private boolean addListener;
+        private boolean listener;
 
         public OptionsBuilder async(boolean async) {
             this.async = async;
@@ -35,8 +35,8 @@ public class Options {
             return this;
         }
 
-        public OptionsBuilder addListener(boolean addListener) {
-            this.addListener = addListener;
+        public OptionsBuilder addListener(boolean listener) {
+            this.listener = listener;
             return this;
         }
 
@@ -44,10 +44,13 @@ public class Options {
             Options options = new Options();
             options.async = this.async;
             options.delay = this.delay;
-            options.addListener = this.addListener;
+            options.listener = this.listener;
             return options;
         }
+    }
 
+    public static OptionsBuilder builder() {
+        return new OptionsBuilder();
     }
 
 }

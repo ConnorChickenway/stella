@@ -1,4 +1,4 @@
-package xyz.connorchickenway.stella.util;
+package xyx.connorchickenway.stella.legacy.util;
 
 import java.lang.reflect.Field;
 

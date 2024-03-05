@@ -4,7 +4,7 @@ import net.minecraft.server.v1_7_R4.PacketPlayOutPlayerInfo;
 import net.minecraft.util.com.mojang.authlib.GameProfile;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import xyz.connorchickenway.stella.util.ReflectionUtil;
+import xyx.connorchickenway.stella.legacy.util.ReflectionUtil;
 
 public class PacketPlayerInfoWrapper implements PacketWrapper<PacketPlayOutPlayerInfo> {
 

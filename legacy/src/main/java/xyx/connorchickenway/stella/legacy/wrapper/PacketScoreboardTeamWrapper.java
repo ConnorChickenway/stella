@@ -3,7 +3,7 @@ package xyx.connorchickenway.stella.legacy.wrapper;
 import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardTeam;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import xyz.connorchickenway.stella.util.ReflectionUtil;
+import xyx.connorchickenway.stella.legacy.util.ReflectionUtil;
 
 import java.util.Collection;
 

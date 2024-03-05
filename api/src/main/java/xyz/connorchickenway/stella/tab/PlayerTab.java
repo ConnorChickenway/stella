@@ -6,8 +6,6 @@ import xyz.connorchickenway.stella.tab.modifier.TabModifier;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static xyz.connorchickenway.stella.tab.entry.TabEntry.TabEntryBuilder;
-
 public abstract class PlayerTab implements Tab {
 
     protected final Player player;
@@ -31,9 +29,9 @@ public abstract class PlayerTab implements Tab {
 
     @Override
     public TabEntry buildEntry(int x, int y, TabModifier tabModifier) {
-        TabEntryBuilder entry = tabModifier.getTabEntryInitByPosition(x, y);
+        TabEntry.TabEntryBuilder entry = tabModifier.getTabEntryInitByPosition(x, y);
         if (entry == null)
-            entry = TabEntryBuilder.createBlankEntry(x, y);
+            entry = TabEntry.TabEntryBuilder.createBlankEntry(x, y);
         return entries[x][y] = entry.build(this);
     }
 

@@ -4,8 +4,8 @@ import org.bukkit.entity.Player;
 
 public interface PacketWrapper<T> {
 
-
     T get();
+
     void send(Player player);
 
 }
