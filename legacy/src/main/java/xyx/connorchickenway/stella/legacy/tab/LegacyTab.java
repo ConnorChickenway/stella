@@ -115,9 +115,10 @@ public class LegacyTab extends PlayerTab {
                 }
                 infoWrapper.send(player);
             }
-            final String text = updateEntry.getText();
+            String text = updateEntry.getText();
             if (!text.equals(tabEntry.getText())) {
                 if (isLegacy) {
+                    text = LegacyUtils.prefixAndSuffix(text);
                     final PacketScoreboardTeamWrapper team = new PacketScoreboardTeamWrapper(false, entryName);
                     String[] split = text.split(":;:");
                     if (split.length > 1) {
