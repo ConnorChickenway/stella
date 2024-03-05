@@ -22,6 +22,7 @@ package xyz.connorchickenway.stella.tab.modifier;
 import xyz.connorchickenway.stella.tab.PlayerTab;
 import xyz.connorchickenway.stella.tab.entry.TabEntry;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,12 +34,14 @@ public class TabModifier {
     private TabModifier(TabInit tabInit) {
         if (tabInit != null) {
             this.initMap = new ConcurrentHashMap<>();
-            tabInit.init()
-                    .stream()
-                    .filter(entry -> entry.getX() != null && entry.getY() != null)
-                    .filter(entry -> entry.getX() > 0 && entry.getX() < PlayerTab.WIDTH)
-                    .filter(entry -> entry.getY() > 0 && entry.getY() < PlayerTab.HEIGHT)
-                    .forEach(this::add);
+            List<TabEntry.TabEntryBuilder> init = tabInit.init();
+            if (init != null) {
+                init.stream()
+                        .filter(entry -> entry.getX() != null && entry.getY() != null)
+                        .filter(entry -> entry.getX() > 0 && entry.getX() < PlayerTab.WIDTH)
+                        .filter(entry -> entry.getY() > 0 && entry.getY() < PlayerTab.HEIGHT)
+                        .forEach(this::add);
+            }
         }
 
     }
