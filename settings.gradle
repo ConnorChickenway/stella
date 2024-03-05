@@ -1,3 +1,4 @@
 rootProject.name = "stella"
 include('api')
 include('legacy')
+include('common')
