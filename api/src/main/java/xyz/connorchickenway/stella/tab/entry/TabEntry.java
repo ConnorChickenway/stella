@@ -20,13 +20,10 @@
 package xyz.connorchickenway.stella.tab.entry;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import xyz.connorchickenway.stella.tab.PlayerTab;
 import xyz.connorchickenway.stella.tab.Tab;
 import xyz.connorchickenway.stella.tab.skin.Skin;
 
 import java.util.UUID;
-import java.util.function.Function;
 
 public class TabEntry {
 
