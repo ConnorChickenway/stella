@@ -96,13 +96,13 @@ public class TabEntry {
     }
     public static class TabEntryBuilder {
 
-        protected Function<Player, String> text;
-        protected Function<Player, Skin> skin;
-        protected Integer x,
+        private String text;
+        private Skin skin;
+        private Integer x,
                 y,
                 ping;
 
-        protected TabEntryBuilder() {}
+        private TabEntryBuilder() {}
 
         public TabEntryBuilder x(int x) {
             if (x < 0 || x >= Tab.WIDTH) {
@@ -125,22 +125,14 @@ public class TabEntry {
             return this;
         }
 
-        public TabEntryBuilder skin(Function<Player, Skin> skin) {
+        public TabEntryBuilder skin(Skin skin) {
             this.skin = skin;
             return this;
         }
 
-        public TabEntryBuilder skin(Skin skin) {
-            return skin(__ -> skin);
-        }
-
-        public TabEntryBuilder text(Function<Player, String> text) {
+        public TabEntryBuilder text(String text) {
             this.text = text;
             return this;
-        }
-
-        public TabEntryBuilder text(String text) {
-            return this.text((__) -> text);
         }
 
         public Integer getX() {
@@ -151,23 +143,22 @@ public class TabEntry {
             return y;
         }
 
-        public TabEntry build(Tab tab) {
+        public TabEntry build() {
             if (x == null || y == null) {
                 throw new NullPointerException("You need to set X and Y variables");
             }
-            Player player = ((PlayerTab)tab).getPlayer();
-            String text = this.text != null ? this.text.apply(player) : "";
+            String text = this.text != null ? this.text : "";
             return new TabEntry(
                     x,
                     y,
                     ChatColor.translateAlternateColorCodes('&', text),
-                    skin != null ? skin.apply(player) : null,
+                    skin != null ? skin : null,
                     ping != null ? ping : 0);
         }
 
         public static TabEntryBuilder createBlankEntry(int x, int y) {
             return builder()
-                    .text("                    ")
+                    .text("")
                     .skin(Skin.DEFAULT)
                     .x(x)
                     .y(y)

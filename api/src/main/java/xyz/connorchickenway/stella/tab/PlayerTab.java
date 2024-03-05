@@ -51,7 +51,7 @@ public abstract class PlayerTab implements Tab {
         TabEntry.TabEntryBuilder entry = tabModifier.getTabEntryInitByPosition(x, y);
         if (entry == null)
             entry = TabEntry.TabEntryBuilder.createBlankEntry(x, y);
-        return entries[x][y] = entry.build(this);
+        return entries[x][y] = entry.build();
     }
 
     @Override
