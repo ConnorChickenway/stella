@@ -21,43 +21,39 @@ package xyz.connorchickenway.stella.util;
 
 import org.bukkit.Bukkit;
 
-public enum ServerVersion {
+public enum NMSVersion {
 
-    V1_7_R4,
-    V1_8_R1,
-    V1_8_R2,
-    V1_8_R3,
-    V1_9_R1,
-    V1_9_R2,
-    V1_10_R1,
-    V1_11_R1,
-    V1_12_R1,
-    V1_13_R1,
-    V1_13_R2,
-    V1_14_R1,
-    V1_15_R1,
-    V1_16_R1,
-    V1_16_R2,
-    V1_16_R3,
-    V1_17_R1,
-    V1_18_R1,
-    V1_18_R2,
-    V1_19_R1,
-    V1_19_R2,
-    V1_19_R3,
-    V1_20_R1,
-    V1_20_R2,
-    V1_20_R3;
+    v1_7_R4,
+    v1_8_R1,
+    v1_8_R2,
+    v1_8_R3,
+    v1_9_R1,
+    v1_9_R2,
+    v1_10_R1,
+    v1_11_R1,
+    v1_12_R1,
+    v1_13_R1,
+    v1_13_R2,
+    v1_14_R1,
+    v1_15_R1,
+    v1_16_R1,
+    v1_16_R2,
+    v1_16_R3,
+    v1_17_R1,
+    v1_18_R1,
+    v1_18_R2,
+    v1_19_R1,
+    v1_19_R2,
+    v1_19_R3,
+    v1_20_R1,
+    v1_20_R2,
+    v1_20_R3;
 
-    public boolean isAboveOrEqual(ServerVersion compare) {
-        return ordinal() >= compare.ordinal();
-    }
-
-    public boolean isEqual(ServerVersion compare) {
+    public boolean isEqual(NMSVersion compare) {
         return ordinal() == compare.ordinal();
     }
 
-    public static ServerVersion serverVersion;
+    public static NMSVersion SERVER_VERSION;
 
     static {
         String version = null;
@@ -67,17 +63,34 @@ public enum ServerVersion {
 
         }
         if (version != null) {
-            for (ServerVersion tmp : ServerVersion.class.getEnumConstants())
+            for (NMSVersion tmp : NMSVersion.class.getEnumConstants())
                 if (tmp.name().compareToIgnoreCase(version) == 0)
                 {
-                    serverVersion = tmp;
+                    SERVER_VERSION = tmp;
                     break;
                 }
         }
     }
 
+    //They change packets in this version.
+    public static boolean isMajor() {
+        return compare(NMSVersion.v1_19_R2);
+    }
+
+    public static boolean isRemappedVersion() {
+        return compare(v1_17_R1);
+    }
+
     public static boolean isLegacy() {
-        return serverVersion != null && serverVersion.isEqual(ServerVersion.V1_7_R4);
+        return compare(NMSVersion.v1_8_R1);
+    }
+
+    public static boolean compare(NMSVersion nmsVersion) {
+        return SERVER_VERSION.ordinal() >= nmsVersion.ordinal();
+    }
+
+    public static boolean compareIsBelow(NMSVersion nmsVersion) {
+        return SERVER_VERSION.ordinal() <= nmsVersion.ordinal();
     }
 
 }
