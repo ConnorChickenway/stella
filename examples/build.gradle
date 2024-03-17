@@ -1,0 +1,15 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'java'
+}
+
+dependencies {
+    compileOnly('org.spigotmc:spigot:1.13.2-R0.1-SNAPSHOT')
+    implementation project(":core")
+}
+
+shadowJar {
+    archiveBaseName.set('StellaExample')
+    archiveClassifier.set('')
+    archiveVersion.set('')
+}

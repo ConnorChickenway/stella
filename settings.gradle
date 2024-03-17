@@ -1,2 +1,2 @@
 rootProject.name = "stella"
-include('core')
+include('core', 'examples')
