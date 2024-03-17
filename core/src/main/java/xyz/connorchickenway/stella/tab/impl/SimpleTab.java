@@ -19,24 +19,124 @@
 
 package xyz.connorchickenway.stella.tab.impl;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import org.bukkit.entity.Player;
 import xyz.connorchickenway.stella.tab.PlayerTab;
+import xyz.connorchickenway.stella.tab.entry.TabEntry;
 import xyz.connorchickenway.stella.tab.modifier.TabModifier;
 import xyz.connorchickenway.stella.tab.modifier.TabUpdate;
+import xyz.connorchickenway.stella.tab.skin.Skin;
+import xyz.connorchickenway.stella.util.TabUpdateHelper;
+import xyz.connorchickenway.stella.wrappers.PacketPlayerInfoWrapper;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static xyz.connorchickenway.stella.util.NMSVersion.*;
 
 public class SimpleTab extends PlayerTab {
 
+    //Class for 1.8.x - 1.20.x
     public SimpleTab(Player player) {
         super(player);
     }
 
     @Override
     public void init(TabModifier tabModifier) {
-
+        List<Object> entries = new ArrayList<>();
+        PacketPlayerInfoWrapper wrapper = new PacketPlayerInfoWrapper();
+        final int divisor = 20;
+        for (int index = 0; index < 80; index++) {
+            if (!player.isOnline()) break;
+            final int x = index / divisor;
+            final int y = index % divisor;
+            TabEntry tabEntry = this.entries[x][y] = buildEntry(x, y, tabModifier).initName();
+            if (!tabEntry.hasSkin())
+                tabEntry.setSkin(Skin.DEFAULT);
+            GameProfile gameProfile = createProfile(tabEntry);
+            PacketPlayerInfoWrapper.PlayerInfoData playerInfoData = new PacketPlayerInfoWrapper.PlayerInfoData(
+                    gameProfile,
+                    tabEntry.getPing(),
+                    tabEntry.getText()
+            );
+            entries.add(playerInfoData.getPlayerData());
+        }
+        wrapper.addEntries(entries);
+        wrapper.addAction(PacketPlayerInfoWrapper.Action.ADD_PLAYER, PacketPlayerInfoWrapper.Action.UPDATE_DISPLAY_NAME,
+                PacketPlayerInfoWrapper.Action.UPDATE_LATENCY, PacketPlayerInfoWrapper.Action.UPDATE_LISTED);
+        wrapper.sendPacket(player);
+        creating.set(false);
     }
 
     @Override
     public void update(TabUpdate tabUpdate) {
-
+        TabUpdateHelper tabUpdateHelper = new TabUpdateHelper();
+        for (TabEntry updateEntry : tabUpdate.update(player)) {
+            if (!player.isOnline()) break;
+            TabEntry tabEntry = getEntryByPosition(updateEntry.getX(), updateEntry.getY());
+            if (updateEntry.hasSkin()) {
+                final Skin updateSkin = updateEntry.getSkin();
+                if (!updateSkin.equals(tabEntry.getSkin())) {
+                    tabEntry.setSkin(updateSkin);
+                    final int ping = updateEntry.getPing();
+                    if (ping != tabEntry.getPing())
+                        tabEntry.setPing(ping);
+                    final String updateText = updateEntry.getText();
+                    if (!updateText.equals(tabEntry.getText()))
+                        tabEntry.setText(updateText);
+                    GameProfile gameProfile = createProfile(tabEntry);
+                    tabUpdateHelper.addSkinEntry(new PacketPlayerInfoWrapper.PlayerInfoData(
+                            gameProfile,
+                            tabEntry.getPing(),
+                            tabEntry.getText()
+                    ));
+                    continue;
+                }
+            }
+            final GameProfile gameProfile = isMajor() ? null : createProfileWithoutSkin(tabEntry);
+            final UUID uuid = gameProfile != null ? null : tabEntry.getId();
+            final int ping = updateEntry.getPing();
+            if (ping != tabEntry.getPing()) {
+                tabEntry.setPing(ping);
+                tabUpdateHelper.addPingEntry(new PacketPlayerInfoWrapper.PlayerInfoData(
+                        uuid,
+                        gameProfile,
+                        ping,
+                        null)
+                );
+            }
+            final String text = updateEntry.getText();
+            if (!text.equals(tabEntry.getText())) {
+                tabEntry.setText(text);
+                tabUpdateHelper.addNameEntry(new PacketPlayerInfoWrapper.PlayerInfoData(
+                        uuid,
+                        gameProfile,
+                        ping,
+                        text)
+                );
+            }
+        }
+        tabUpdateHelper.doMagic(player);
     }
+
+    private GameProfile createProfile(TabEntry tabEntry) {
+        return createProfile(tabEntry.getId(), tabEntry.getEntryName(), tabEntry.getSkin());
+    }
+
+    private GameProfile createProfileWithoutSkin(TabEntry tabEntry) {
+        return createProfile(tabEntry.getId(), tabEntry.getEntryName(), null);
+    }
+
+    private GameProfile createProfile(UUID uuid, String entryName, Skin skin) {
+        GameProfile gameProfile = new GameProfile(uuid, entryName);
+        if (skin != null) {
+            gameProfile.getProperties().put("textures", new Property("textures",
+                    skin.getValue(),
+                    skin.getSignature()));
+        }
+        return gameProfile;
+    }
+
 }

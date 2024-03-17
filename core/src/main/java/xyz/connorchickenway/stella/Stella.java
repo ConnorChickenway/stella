@@ -27,11 +27,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.connorchickenway.stella.tab.Tab;
+import xyz.connorchickenway.stella.tab.impl.LegacyTab;
 import xyz.connorchickenway.stella.tab.impl.SimpleTab;
 import xyz.connorchickenway.stella.tab.modifier.TabModifier;
 import xyz.connorchickenway.stella.tab.options.Options;
 import xyz.connorchickenway.stella.tab.task.TabHandler;
 import xyz.connorchickenway.stella.tab.task.TabTask;
+import xyz.connorchickenway.stella.util.NMSHelper;
+import xyz.connorchickenway.stella.util.NMSVersion;
 
 import java.util.Map;
 import java.util.UUID;
@@ -84,7 +87,9 @@ public class Stella {
     }
 
     public Tab add(Player player) {
-        Tab tab = new SimpleTab(player);
+        Tab tab = NMSVersion.is1_7() ?
+                new LegacyTab(player, NMSHelper.getProtocolVersion(player)) :
+                new SimpleTab(player);
         tabs.put(player.getUniqueId(), tab);
         return tab;
     }

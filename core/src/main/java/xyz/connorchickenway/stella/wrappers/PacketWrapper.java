@@ -17,26 +17,17 @@
  *
  */
 
-package xyz.connorchickenway.stella.tab.task;
+package xyz.connorchickenway.stella.wrappers;
 
-import xyz.connorchickenway.stella.Stella;
-import xyz.connorchickenway.stella.tab.modifier.TabModifier;
+import org.bukkit.entity.Player;
+import xyz.connorchickenway.stella.util.NMSHelper;
 
-public class TabHandler implements TabTask {
+public interface PacketWrapper {
 
-    private final Stella stella;
-    private final TabModifier tabModifier;
+    Object getPacket();
 
-    public TabHandler(Stella stella, TabModifier tabModifier) {
-        this.stella = stella;
-        this.tabModifier = tabModifier;
+    default void sendPacket(Player player) {
+        NMSHelper.sendPacket(player, getPacket());
     }
 
-    @Override
-    public void run() {
-        stella.getTabs().forEach((uuid, tab) -> {
-            if (tab.isCreating()) return;
-            tab.update(tabModifier.getTabUpdate());
-        });
-    }
 }

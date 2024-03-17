@@ -93,4 +93,8 @@ public enum NMSVersion {
         return SERVER_VERSION.ordinal() <= nmsVersion.ordinal();
     }
 
+    public static boolean is1_7() {
+        return compareIsBelow(v1_7_R4);
+    }
+
 }
