@@ -134,8 +134,11 @@ public class NMSHelper {
                 throw new RuntimeException(ex);
             }
         }
+        if (ViaProtocol.hasViaVersion()) {
+            return ViaProtocol.getProtocolVersion(player);
+        }
         //a random number;
-        return 696;
+        return -1;
     }
 
 }

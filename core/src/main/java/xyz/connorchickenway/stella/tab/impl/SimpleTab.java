@@ -72,7 +72,7 @@ public class SimpleTab extends PlayerTab {
 
     @Override
     public void update(TabUpdate tabUpdate) {
-        TabUpdateHelper tabUpdateHelper = new TabUpdateHelper();
+        TabUpdateHelper tabUpdateHelper = new TabUpdateHelper(player);
         for (TabEntry updateEntry : tabUpdate.update(player)) {
             if (!player.isOnline()) break;
             TabEntry tabEntry = getEntryByPosition(updateEntry.getX(), updateEntry.getY());

@@ -19,9 +19,10 @@
 
 package xyz.connorchickenway.stella.wrappers;
 
+import xyz.connorchickenway.stella.util.NMSVersion;
+
 import java.lang.reflect.Constructor;
 import java.util.List;
-import java.util.UUID;
 
 import static xyz.connorchickenway.stella.util.NMSHelper.getNMSPackageName;
 import static xyz.connorchickenway.stella.util.NMSVersion.isMajor;
@@ -32,8 +33,15 @@ public class PacketPlayerInfoRemoveWrapper implements PacketWrapper {
 
     private final Object packet;
 
-    public PacketPlayerInfoRemoveWrapper(List<UUID> list) {
-        packet = invokeConstructor(CONSTRUCTOR, list);
+    public PacketPlayerInfoRemoveWrapper(List<Object> list) {
+        if (NMSVersion.isMajor()) {
+            packet = invokeConstructor(CONSTRUCTOR, list);
+        } else {
+            PacketPlayerInfoWrapper playerInfoWrapper = new PacketPlayerInfoWrapper();
+            playerInfoWrapper.addAction(PacketPlayerInfoWrapper.Action.REMOVE_PLAYER);
+            playerInfoWrapper.addEntries(list);
+            packet = playerInfoWrapper.getPacket();
+        }
     }
 
     @Override

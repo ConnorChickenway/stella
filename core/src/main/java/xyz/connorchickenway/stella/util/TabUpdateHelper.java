@@ -30,21 +30,28 @@ import java.util.UUID;
 public class TabUpdateHelper {
     
     private final List<Object> skinEntries, namesEntries, pingEntries;
-    private List<UUID> removePlayers;
+    private List<Object> removePlayers;
 
-    public TabUpdateHelper() {
-        if (NMSVersion.isMajor()) {
-            removePlayers = new ArrayList<>();
-        }
+    public TabUpdateHelper(Player player) {
+        final int protocolVersion = NMSHelper.getProtocolVersion(player);
         this.skinEntries = new ArrayList<>();
         this.namesEntries = new ArrayList<>();
         this.pingEntries = new ArrayList<>();
+        if (NMSVersion.isMajor()) {
+            if (protocolVersion != -1 && protocolVersion != 761)
+                return;
+            removePlayers = new ArrayList<>();
+        } else if (protocolVersion >= 761)
+            removePlayers = new ArrayList<>();
     }
 
     public void addSkinEntry(PacketPlayerInfoWrapper.PlayerInfoData playerInfoData) {
         skinEntries.add(playerInfoData.getPlayerData());
         if (removePlayers != null) {
-            removePlayers.add(playerInfoData.getId());
+            if (NMSVersion.isMajor())
+                removePlayers.add(playerInfoData.getId());
+            else
+                removePlayers.add(playerInfoData.getPlayerData());
         }
     }
 
