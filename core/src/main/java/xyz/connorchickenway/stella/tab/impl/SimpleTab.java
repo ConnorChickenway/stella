@@ -19,8 +19,6 @@
 
 package xyz.connorchickenway.stella.tab.impl;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import org.bukkit.entity.Player;
 import xyz.connorchickenway.stella.tab.PlayerTab;
 import xyz.connorchickenway.stella.tab.entry.TabEntry;
@@ -28,6 +26,7 @@ import xyz.connorchickenway.stella.tab.modifier.TabModifier;
 import xyz.connorchickenway.stella.tab.modifier.TabUpdate;
 import xyz.connorchickenway.stella.tab.skin.Skin;
 import xyz.connorchickenway.stella.util.TabUpdateHelper;
+import xyz.connorchickenway.stella.wrappers.GameProfileWrapper;
 import xyz.connorchickenway.stella.wrappers.PacketPlayerInfoWrapper;
 
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ public class SimpleTab extends PlayerTab {
             TabEntry tabEntry = this.entries[x][y] = buildEntry(x, y, tabModifier).initName();
             if (!tabEntry.hasSkin())
                 tabEntry.setSkin(Skin.DEFAULT);
-            GameProfile gameProfile = createProfile(tabEntry);
+            GameProfileWrapper gameProfile = GameProfileWrapper.getGameProfile(tabEntry);
             PacketPlayerInfoWrapper.PlayerInfoData playerInfoData = new PacketPlayerInfoWrapper.PlayerInfoData(
                     gameProfile,
                     tabEntry.getPing(),
@@ -86,7 +85,7 @@ public class SimpleTab extends PlayerTab {
                     final String updateText = updateEntry.getText();
                     if (!updateText.equals(tabEntry.getText()))
                         tabEntry.setText(updateText);
-                    GameProfile gameProfile = createProfile(tabEntry);
+                    GameProfileWrapper gameProfile = GameProfileWrapper.getGameProfile(tabEntry);
                     tabUpdateHelper.addSkinEntry(new PacketPlayerInfoWrapper.PlayerInfoData(
                             gameProfile,
                             tabEntry.getPing(),
@@ -95,7 +94,8 @@ public class SimpleTab extends PlayerTab {
                     continue;
                 }
             }
-            final GameProfile gameProfile = isMajor() ? null : createProfileWithoutSkin(tabEntry);
+            final GameProfileWrapper gameProfile = isMajor() ? null :
+                    GameProfileWrapper.getGameProfileWithoutSkin(tabEntry);
             final UUID uuid = gameProfile != null ? null : tabEntry.getId();
             final int ping = updateEntry.getPing();
             if (ping != tabEntry.getPing()) {
@@ -119,24 +119,6 @@ public class SimpleTab extends PlayerTab {
             }
         }
         tabUpdateHelper.doMagic(player);
-    }
-
-    private GameProfile createProfile(TabEntry tabEntry) {
-        return createProfile(tabEntry.getId(), tabEntry.getEntryName(), tabEntry.getSkin());
-    }
-
-    private GameProfile createProfileWithoutSkin(TabEntry tabEntry) {
-        return createProfile(tabEntry.getId(), tabEntry.getEntryName(), null);
-    }
-
-    private GameProfile createProfile(UUID uuid, String entryName, Skin skin) {
-        GameProfile gameProfile = new GameProfile(uuid, entryName);
-        if (skin != null) {
-            gameProfile.getProperties().put("textures", new Property("textures",
-                    skin.getValue(),
-                    skin.getSignature()));
-        }
-        return gameProfile;
     }
 
 }

@@ -19,8 +19,6 @@
 
 package xyz.connorchickenway.stella.tab.impl;
 
-import net.minecraft.util.com.mojang.authlib.GameProfile;
-import net.minecraft.util.com.mojang.authlib.properties.Property;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -30,10 +28,9 @@ import xyz.connorchickenway.stella.tab.modifier.TabModifier;
 import xyz.connorchickenway.stella.tab.modifier.TabUpdate;
 import xyz.connorchickenway.stella.tab.skin.Skin;
 import xyz.connorchickenway.stella.util.NMSHelper;
+import xyz.connorchickenway.stella.wrappers.GameProfileWrapper;
 import xyz.connorchickenway.stella.wrappers.PacketPlayerInfoWrapper;
 import xyz.connorchickenway.stella.wrappers.legacy.PacketScoreboardTeamWrapper;
-
-import java.util.UUID;
 
 import static xyz.connorchickenway.stella.util.NMSVersion.*;
 
@@ -62,11 +59,11 @@ public class LegacyTab extends PlayerTab {
                 tabEntry.setSkin(Skin.DEFAULT);
             }
             PacketPlayerInfoWrapper wrapper = new PacketPlayerInfoWrapper();
-            GameProfile gameProfile = isMajor ? createProfile(tabEntry) : null;
+            GameProfileWrapper gameProfile = isMajor ? GameProfileWrapper.getGameProfile(tabEntry) : null;
             final String entryText = tabEntry.getText(),
                     entryName = protocolVersion <= 5 ? NAMES[x][y] : null;
             wrapper.addProtocolHackEntry(
-                    gameProfile,
+                    gameProfile != null ? gameProfile.getGameProfile() : null,
                     isMajor ? entryText : entryName,
                     tabEntry.getPing()
             );
@@ -118,7 +115,7 @@ public class LegacyTab extends PlayerTab {
                     PacketPlayerInfoWrapper wrapper = new PacketPlayerInfoWrapper();
                     wrapper.addAction(PacketPlayerInfoWrapper.Action.ADD_PLAYER);
                     wrapper.addProtocolHackEntry(
-                            createProfile(tabEntry),
+                            GameProfileWrapper.getGameProfile(tabEntry).getGameProfile(),
                             text,
                             ping
                     );
@@ -127,15 +124,15 @@ public class LegacyTab extends PlayerTab {
                 }
             }
             final String entryName = is1_7 ? NAMES[updateEntry.getX()][updateEntry.getY()] : null;
-            final GameProfile gameProfile = entryName != null ? null :
-                    createProfile(tabEntry.getId(), tabEntry.getEntryName());
+            final GameProfileWrapper gameProfile = entryName != null ? null :
+                    GameProfileWrapper.getGameProfileWithoutSkin(tabEntry);
             final int ping = updateEntry.getPing();
             if (ping != tabEntry.getPing()) {
                 tabEntry.setPing(ping);
                 PacketPlayerInfoWrapper wrapper = new PacketPlayerInfoWrapper();
                 wrapper.addAction(PacketPlayerInfoWrapper.Action.UPDATE_LATENCY);
                 wrapper.addProtocolHackEntry(
-                        gameProfile,
+                        gameProfile != null ? gameProfile.getGameProfile() : null,
                         entryName,
                         ping
                 );
@@ -159,27 +156,9 @@ public class LegacyTab extends PlayerTab {
             tabEntry.setText(text);
             PacketPlayerInfoWrapper wrapper = new PacketPlayerInfoWrapper();
             wrapper.addAction(PacketPlayerInfoWrapper.Action.UPDATE_DISPLAY_NAME);
-            wrapper.addProtocolHackEntry(gameProfile, text, null);
+            wrapper.addProtocolHackEntry(gameProfile.getGameProfile(), text, null);
             wrapper.sendPacket(player);
         }
-    }
-
-    private GameProfile createProfile(TabEntry tabEntry) {
-        return createProfile(tabEntry.getId(), tabEntry.getEntryName(), tabEntry.getSkin());
-    }
-
-    private GameProfile createProfile(UUID uuid, String entryName, Skin skin) {
-        GameProfile gameProfile = new GameProfile(uuid, entryName);
-        if (skin != null) {
-            gameProfile.getProperties().put("textures", new Property("textures",
-                    skin.getValue(),
-                    skin.getSignature()));
-        }
-        return gameProfile;
-    }
-
-    private GameProfile createProfile(UUID uuid, String entryName) {
-        return createProfile(uuid, entryName, null);
     }
 
     private int getX(int index) {

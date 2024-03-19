@@ -12,5 +12,4 @@ repositories {
 dependencies {
     compileOnly('com.viaversion:viaversion-api:4.9.3-SNAPSHOT')
     compileOnly('org.spigotmc:spigot:1.13.2-R0.1-SNAPSHOT')
-    compileOnly(files("libs/authlib-1.7.10.jar"))
 }

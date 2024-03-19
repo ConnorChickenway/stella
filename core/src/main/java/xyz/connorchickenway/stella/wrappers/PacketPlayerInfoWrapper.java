@@ -19,8 +19,6 @@
 
 package xyz.connorchickenway.stella.wrappers;
 
-import com.mojang.authlib.GameProfile;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -41,7 +39,7 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
     }
 
     public void addAction(Action... action) {
-        Object object = null;
+        Object object;
         if (isMajor()) {
             object = invokeStaticMethod(ENUM_SET_NONE_OF, ENUM_CLASS);
             for (Action a : action)
@@ -116,18 +114,18 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
 
     public static class PlayerInfoData {
 
-        private final GameProfile gameProfile;
+        private final GameProfileWrapper gameProfile;
         private final int latency;
         private final Object displayName;
         private UUID uuid;
 
-        public PlayerInfoData(GameProfile gameProfile, int latency, String displayName) {
+        public PlayerInfoData(GameProfileWrapper gameProfile, int latency, String displayName) {
             this.gameProfile = gameProfile;
             this.latency = latency;
             this.displayName = displayName != null ? getChatComponent(displayName) : null;
         }
 
-        public PlayerInfoData(UUID uuid, GameProfile gameProfile, int latency, String displayName) {
+        public PlayerInfoData(UUID uuid, GameProfileWrapper gameProfile, int latency, String displayName) {
             this(gameProfile, latency, displayName);
             this.uuid = uuid;
         }
@@ -141,7 +139,7 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
                 if (isMajor()) {
                     return PLAYER_INFO_DATA_CONSTRUCTOR.newInstance(
                             uuid != null ? uuid : gameProfile.getId(),
-                            gameProfile,
+                            gameProfile.getGameProfile(),
                             true,
                             latency,
                             ENUM_GAME_MODE,
@@ -151,14 +149,14 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
                 } else
                 if (isRemappedVersion())
                     return PLAYER_INFO_DATA_CONSTRUCTOR.newInstance(
-                            gameProfile,
+                            gameProfile.getGameProfile(),
                             latency,
                             ENUM_GAME_MODE,
                             displayName
                     );
                 return PLAYER_INFO_DATA_CONSTRUCTOR.newInstance(
                         STATIC_PACKET,
-                        gameProfile,
+                        gameProfile.getGameProfile(),
                         latency,
                         ENUM_GAME_MODE,
                         displayName
