@@ -32,8 +32,6 @@ import xyz.connorchickenway.stella.wrappers.GameProfileWrapper;
 import xyz.connorchickenway.stella.wrappers.PacketPlayerInfoWrapper;
 import xyz.connorchickenway.stella.wrappers.legacy.PacketScoreboardTeamWrapper;
 
-import static xyz.connorchickenway.stella.util.NMSVersion.*;
-
 public class LegacyTab extends PlayerTab {
 
     private final int protocolVersion;
@@ -61,7 +59,7 @@ public class LegacyTab extends PlayerTab {
             PacketPlayerInfoWrapper wrapper = new PacketPlayerInfoWrapper();
             GameProfileWrapper gameProfile = isMajor ? GameProfileWrapper.getGameProfile(tabEntry) : null;
             final String entryText = tabEntry.getText(),
-                    entryName = protocolVersion <= 5 ? NAMES[x][y] : null;
+                    entryName = protocolVersion <= 5 ? getEntryName(x, y) : null;
             wrapper.addProtocolHackEntry(
                     gameProfile != null ? gameProfile.getGameProfile() : null,
                     isMajor ? entryText : entryName,
@@ -123,7 +121,7 @@ public class LegacyTab extends PlayerTab {
                     return;
                 }
             }
-            final String entryName = is1_7 ? NAMES[updateEntry.getX()][updateEntry.getY()] : null;
+            final String entryName = is1_7 ? getEntryName(updateEntry.getX(), updateEntry.getY()) : null;
             final GameProfileWrapper gameProfile = entryName != null ? null :
                     GameProfileWrapper.getGameProfileWithoutSkin(tabEntry);
             final int ping = updateEntry.getPing();
@@ -185,18 +183,10 @@ public class LegacyTab extends PlayerTab {
         return stringBuilder.toString();
     }
 
-    public static String[][] NAMES;
+    private static final ChatColor[] COLORS = ChatColor.values();
 
-    static {
-        if (is1_7()) {
-            NAMES = new String[3][20];
-            ChatColor[] colors = ChatColor.values();
-            for (int i = 0; i < 60; i++) {
-                int x = i % 3;
-                int y = i / 3;
-                NAMES[x][y] = String.valueOf(colors[x]) + colors[y] + ChatColor.RESET;
-            }
-        }
+    public static String getEntryName(int x, int y) {
+        return String.valueOf(COLORS[x]) + COLORS[y] + ChatColor.RESET;
     }
 
 }
