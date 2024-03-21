@@ -52,6 +52,7 @@ public class NMSHelper {
     private static Object UNSAFE;
     //1.7.10 method for remove players in tablist
     private static Method _1_7_REMOVE_PLAYER;
+    private static final Method CHAT_COMPONENT;
 
 
     static {
@@ -85,6 +86,12 @@ public class NMSHelper {
                             .filter(method -> method.getParameterCount() == 1 && method.getParameters()[0].getType()
                                     .getName().equals("net.minecraft.network.protocol.Packet"))
                             .findFirst().orElseThrow(NoSuchMethodError::new);
+            //ChatComponent
+            Class<?> baseComponentClass = Class.forName((isRemappedVersion() ?
+                    getNMSPackageName() + ".network.chat.IChatBaseComponent" :
+                    getLegacyNMSPackageName() + ".IChatBaseComponent") +
+                    (compare(v1_8_R2) ? "$" : ".") + "ChatSerializer");
+            CHAT_COMPONENT = baseComponentClass.getMethod("a", String.class);
             //getting player protocol version
             if (is1_7()) {
                 //GET PROTOCOL VERSION
@@ -139,6 +146,10 @@ public class NMSHelper {
         }
         //a random number;
         return -1;
+    }
+
+    public static Object newChatComponent(String text) {
+        return invokeStaticMethod(CHAT_COMPONENT, "{\"text\": \"" + text + "\"}");
     }
 
 }

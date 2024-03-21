@@ -21,7 +21,6 @@ package xyz.connorchickenway.stella.wrappers;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -122,7 +121,7 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
         public PlayerInfoData(GameProfileWrapper gameProfile, int latency, String displayName) {
             this.gameProfile = gameProfile;
             this.latency = latency;
-            this.displayName = displayName != null ? getChatComponent(displayName) : null;
+            this.displayName = displayName != null ? newChatComponent(displayName) : null;
         }
 
         public PlayerInfoData(UUID uuid, GameProfileWrapper gameProfile, int latency, String displayName) {
@@ -166,10 +165,6 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
             }
         }
 
-        private static Object getChatComponent(String text) {
-            return invokeStaticMethod(CHAT_COMPONENT, "{\"text\": \"" + text + "\"}");
-        }
-
         private static final Constructor<?> PLAYER_INFO_DATA_CONSTRUCTOR = PLAYER_INFO_DATA_CLASS.getConstructors()[0];
 
     }
@@ -179,7 +174,6 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
     private static Class<?> ENUM_CLASS;
     private static Class<?> PLAYER_INFO_DATA_CLASS;
     private static Object ENUM_GAME_MODE;
-    private static Method CHAT_COMPONENT;
     //1.7.10 fields
     private static Field GAME_PROFILE, USERNAME, PING;
     //1.8.x - 1.16.x
@@ -207,12 +201,6 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
                                 ".WorldSettings$EnumGamemode" : ".EnumGamemode")));
                 ENUM_GAME_MODE = enumGameModeClass.getField(compareIsBelow(v1_16_R3) ?
                         "NOT_SET" : "a").get(null);
-                //ChatComponent
-                Class<?> baseComponentClass = Class.forName((isRemappedVersion() ?
-                        getNMSPackageName() + ".network.chat.IChatBaseComponent" :
-                        getLegacyNMSPackageName() + ".IChatBaseComponent") +
-                        (compare(v1_8_R2) ? "$" : ".") + "ChatSerializer");
-                CHAT_COMPONENT = baseComponentClass.getMethod("a", String.class);
                 ENUM_CLASS = getClassForName(PACKET_CLASS.getName() + "$" + (isMajor() ?
                         "a" : "EnumPlayerInfoAction"));
             }
