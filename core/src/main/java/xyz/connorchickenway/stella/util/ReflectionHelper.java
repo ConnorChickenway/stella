@@ -47,6 +47,16 @@ public class ReflectionHelper {
         }
     }
 
+    public static void set(String fieldName, Object classObject, Object object) {
+        try {
+            Field field = classObject.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(classObject, object);
+        }catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public static Object get(Field field, Object classObject) {
         try {
             return field.get(classObject);

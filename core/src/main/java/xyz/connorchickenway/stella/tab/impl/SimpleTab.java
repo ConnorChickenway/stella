@@ -19,25 +19,31 @@
 
 package xyz.connorchickenway.stella.tab.impl;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import xyz.connorchickenway.stella.tab.PlayerTab;
 import xyz.connorchickenway.stella.tab.entry.TabEntry;
 import xyz.connorchickenway.stella.tab.modifier.TabModifier;
 import xyz.connorchickenway.stella.tab.modifier.TabUpdate;
 import xyz.connorchickenway.stella.tab.skin.Skin;
+import xyz.connorchickenway.stella.util.NMSHelper;
 import xyz.connorchickenway.stella.util.TabUpdateHelper;
 import xyz.connorchickenway.stella.wrappers.GameProfileWrapper;
+import xyz.connorchickenway.stella.wrappers.PacketPlayerInfoRemoveWrapper;
 import xyz.connorchickenway.stella.wrappers.PacketPlayerInfoWrapper;
+import xyz.connorchickenway.stella.wrappers.PacketScoreboardTeamWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static xyz.connorchickenway.stella.util.NMSVersion.*;
+import static xyz.connorchickenway.stella.tab.impl.LegacyTab.prefixAndSuffix;
+import static xyz.connorchickenway.stella.tab.impl.LegacyTab.getEntryName;
 
 public class SimpleTab extends PlayerTab {
 
-    //Class for 1.8.x - 1.20.x
+    //Class for 1.8.x - 1.20.x or ViaRewind for 1.7 players
     public SimpleTab(Player player) {
         super(player);
     }
@@ -46,6 +52,50 @@ public class SimpleTab extends PlayerTab {
     public void init(TabModifier tabModifier) {
         List<Object> entries = new ArrayList<>();
         PacketPlayerInfoWrapper wrapper = new PacketPlayerInfoWrapper();
+        if (NMSHelper.has1_7(player)) {
+            for (int index = 0; index < 60; index++) {
+                final int x = index % 3;
+                final int y = index / 3;
+                TabEntry tabEntry = this.entries[x][y] = buildEntry(x, y, tabModifier).initName();
+                GameProfileWrapper gameProfile = GameProfileWrapper.getGameProfileWithoutSkin(tabEntry);
+                final String entryName = getEntryName(x,  y);
+                PacketScoreboardTeamWrapper teamWrapper = new PacketScoreboardTeamWrapper(entryName, true);
+                final String txt = prefixAndSuffix(tabEntry.getText());
+                final String[] split = txt.split(":;:");
+                if (split.length > 1) {
+                    teamWrapper.setSuffix(split[1]);
+                }
+                teamWrapper.setPrefix(split[0]);
+                tabEntry.setText(txt);
+                teamWrapper.sendPacket(player);
+                PacketPlayerInfoWrapper.PlayerInfoData playerInfoData = new PacketPlayerInfoWrapper.PlayerInfoData(
+                        gameProfile,
+                        tabEntry.getPing(),
+                        entryName
+                );
+                entries.add(playerInfoData.getPlayerData());
+            }
+            wrapper.addAction(PacketPlayerInfoWrapper.Action.ADD_PLAYER);
+            wrapper.addEntries(entries);
+            wrapper.sendPacket(player);
+            entries = new ArrayList<>();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (isMajor()) {
+                    entries.add(player.getUniqueId());
+                }else {
+                    PacketPlayerInfoWrapper.PlayerInfoData playerInfoData = new PacketPlayerInfoWrapper.PlayerInfoData(
+                            GameProfileWrapper.getGameProfile(player.getUniqueId(), "", null),
+                            0,
+                            ""
+                    );
+                    entries.add(playerInfoData.getPlayerData());
+                }
+            }
+            PacketPlayerInfoRemoveWrapper removeWrapper = new PacketPlayerInfoRemoveWrapper(entries);
+            removeWrapper.sendPacket(player);
+            creating.set(false);
+            return;
+        }
         final int divisor = 20;
         for (int index = 0; index < 80; index++) {
             if (!player.isOnline()) break;
@@ -71,6 +121,42 @@ public class SimpleTab extends PlayerTab {
 
     @Override
     public void update(TabUpdate tabUpdate) {
+        if (NMSHelper.has1_7(player)) {
+            List<Object> entries = new ArrayList<>();
+            for (TabEntry updateEntry : tabUpdate.update(player)) {
+                if (!player.isOnline()) break;
+                if (updateEntry.getX() >= 3) continue;
+                TabEntry tabEntry = getEntryByPosition(updateEntry.getX(), updateEntry.getY());
+                final String entryName = getEntryName(updateEntry.getX(), updateEntry.getY());
+                final int ping = updateEntry.getPing();
+                if (ping != tabEntry.getPing()) {
+                    tabEntry.setPing(ping);
+                    GameProfileWrapper gameProfile = GameProfileWrapper.getGameProfile(tabEntry);
+                    PacketPlayerInfoWrapper.PlayerInfoData playerInfoData = new PacketPlayerInfoWrapper.PlayerInfoData(
+                            gameProfile,
+                            tabEntry.getPing(),
+                            entryName
+                    );
+                    entries.add(playerInfoData.getPlayerData());
+                }
+                String converted = prefixAndSuffix(updateEntry.getText());
+                if (converted.equals(tabEntry.getText())) return;
+                tabEntry.setText(converted);
+                PacketScoreboardTeamWrapper teamWrapper = new PacketScoreboardTeamWrapper(entryName, false);
+                String[] split = converted.split(":;:");
+                if (split.length > 1) {
+                    teamWrapper.setSuffix(split[1]);
+                }
+                teamWrapper.setPrefix(split[0]);
+                teamWrapper.sendPacket(player);
+            }
+            if (entries.isEmpty()) return;
+            PacketPlayerInfoWrapper infoWrapper = new PacketPlayerInfoWrapper();
+            infoWrapper.addAction(PacketPlayerInfoWrapper.Action.UPDATE_LATENCY);
+            infoWrapper.addEntries(entries);
+            infoWrapper.sendPacket(player);
+            return;
+        }
         TabUpdateHelper tabUpdateHelper = new TabUpdateHelper(player);
         for (TabEntry updateEntry : tabUpdate.update(player)) {
             if (!player.isOnline()) break;
@@ -120,5 +206,4 @@ public class SimpleTab extends PlayerTab {
         }
         tabUpdateHelper.doMagic(player);
     }
-
 }

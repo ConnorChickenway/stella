@@ -54,7 +54,6 @@ public class NMSHelper {
     private static Method _1_7_REMOVE_PLAYER;
     private static final Method CHAT_COMPONENT;
 
-
     static {
         if (SERVER_VERSION == null) {
             throw new NullPointerException("Something is wrong with your server.!");
@@ -146,6 +145,11 @@ public class NMSHelper {
         }
         //a random number;
         return -1;
+    }
+
+    public static boolean has1_7(Player player) {
+        final int protocolVersion = getProtocolVersion(player);
+        return protocolVersion == 5;
     }
 
     public static Object newChatComponent(String text) {

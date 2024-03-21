@@ -167,7 +167,7 @@ public class LegacyTab extends PlayerTab {
         return isMajor ? index % divisor : index / divisor;
     }
 
-    private static String prefixAndSuffix(String text) {
+    public static String prefixAndSuffix(String text) {
         StringBuilder stringBuilder = new StringBuilder();
         if (text.length() <= 16) {
             stringBuilder.append(text);
