@@ -142,7 +142,7 @@ public class LegacyTab extends PlayerTab {
                 if (converted.equals(tabEntry.getText())) return;
                 tabEntry.setText(converted);
                 final PacketScoreboardTeamWrapper team = new PacketScoreboardTeamWrapper(entryName, false);
-                String[] split = text.split(":;:");
+                String[] split = converted.split(":;:");
                 if (split.length > 1) {
                     team.setSuffix(split[1]);
                 }
