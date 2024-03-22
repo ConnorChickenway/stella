@@ -30,7 +30,7 @@ import xyz.connorchickenway.stella.tab.skin.Skin;
 import xyz.connorchickenway.stella.util.NMSHelper;
 import xyz.connorchickenway.stella.wrappers.GameProfileWrapper;
 import xyz.connorchickenway.stella.wrappers.PacketPlayerInfoWrapper;
-import xyz.connorchickenway.stella.wrappers.legacy.PacketScoreboardTeamWrapper;
+import xyz.connorchickenway.stella.wrappers.PacketScoreboardTeamWrapper;
 
 public class LegacyTab extends PlayerTab {
 
@@ -70,7 +70,6 @@ public class LegacyTab extends PlayerTab {
             if (protocolVersion <= 5)
             {
                 PacketScoreboardTeamWrapper teamWrapper = new PacketScoreboardTeamWrapper(entryName, true);
-                teamWrapper.addEntry(entryName);
                 final String txt = prefixAndSuffix(tabEntry.getText());
                 final String[] split = txt.split(":;:");
                 if (split.length > 1) {

@@ -47,11 +47,12 @@ public class PacketScoreboardTeamWrapper implements PacketWrapper {
             set("f", parameters, CHAT_RESET_FORMAT);
             set("g", parameters, 0);
             packet = invokeConstructor(PACKET_CONSTRUCTOR, name, mode,
-                    Optional.of(parameters), Collections.singletonList(name));
+                    Optional.of(parameters), mode != 0 ? Collections.emptyList() : Collections.singletonList(name));
         } else {
             this.packet = invokeConstructor(PACKET_CONSTRUCTOR);
             set(TEAM_NAME, packet, name);
             set(ACTION, packet, mode);
+            if (mode != 0) return;
             invokeMethod(ADD, get(GET_ENTRIES_COLLECTION, packet), name);
         }
     }
