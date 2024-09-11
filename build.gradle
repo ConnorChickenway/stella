@@ -1,5 +1,12 @@
 allprojects {
     repositories {
         mavenLocal()
+        maven {
+            url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+            content {
+                includeGroup 'org.bukkit'
+                includeGroup 'org.spigotmc'
+            }
+        }
     }
 }
