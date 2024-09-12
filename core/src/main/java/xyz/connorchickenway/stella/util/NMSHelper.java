@@ -19,6 +19,8 @@
 
 package xyz.connorchickenway.stella.util;
 
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
@@ -53,6 +55,8 @@ public class NMSHelper {
     //1.7.10 method for remove players in tablist
     private static Method _1_7_REMOVE_PLAYER;
     private static Method CHAT_COMPONENT;
+    //1.20.5 >
+    private static Object HOLDER_LOOKUP_PROVIDER;
 
     static {
         if (SERVER_VERSION == null) {
@@ -91,7 +95,28 @@ public class NMSHelper {
                         getNMSPackageName() + ".network.chat.IChatBaseComponent" :
                         getLegacyNMSPackageName() + ".IChatBaseComponent") +
                         (compare(v1_8_R2) ? "$" : ".") + "ChatSerializer");
-                CHAT_COMPONENT = baseComponentClass.getMethod("a", String.class);
+                if (compare(v1_20_R4)) {
+                    World world = Bukkit.getWorlds().get(0);
+                    try{
+                        for (Method method : world.getClass().getMethods()) {
+                            if (method.getName().equals("getHandle")) {
+                                Object worldServer = method.invoke(world);
+                                for(Method method1 : worldServer.getClass().getMethods()) {
+                                    if (method1.getReturnType().getName().equals("net.minecraft.core.IRegistryCustom")) {
+                                        HOLDER_LOOKUP_PROVIDER = method1.invoke(worldServer);
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }catch (Exception ex) {
+                        throw new NullPointerException("Couldn't locate IRegistryCustom method");
+                    }
+                    CHAT_COMPONENT = baseComponentClass.getMethod("a", String.class, Class.forName("net.minecraft.core.HolderLookup$a"));
+                } else {
+                    CHAT_COMPONENT = baseComponentClass.getMethod("a", String.class);
+                }
             }
             //getting player protocol version
             if (is1_7()) {
@@ -155,7 +180,9 @@ public class NMSHelper {
     }
 
     public static Object newChatComponent(String text) {
-        return invokeStaticMethod(CHAT_COMPONENT, "{\"text\": \"" + text + "\"}");
+        final String json = "{\"text\": \"" + text + "\"}";
+        return compare(v1_20_R4) ? invokeStaticMethod(CHAT_COMPONENT, json, HOLDER_LOOKUP_PROVIDER) :
+                invokeStaticMethod(CHAT_COMPONENT, json);
     }
 
 }

@@ -185,8 +185,8 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
                     getNMSPackageName() + ".network.protocol.game." +
                             (isMajor() ? "ClientboundPlayerInfoUpdatePacket" : "PacketPlayOutPlayerInfo") :
                     getLegacyNMSPackageName() + ".PacketPlayOutPlayerInfo");
-            ACTION = getDeclaredField(PACKET_CLASS, is1_7() ? "action" : "a");
-            ENTRIES = is1_7() ? null : getDeclaredField(PACKET_CLASS, "b");
+            ACTION = getDeclaredField(PACKET_CLASS, is1_7() ? "action" : compare(v1_20_R4) ? "b" : "a");
+            ENTRIES = is1_7() ? null : getDeclaredField(PACKET_CLASS, compare(v1_20_R4) ? "c" : "b");
             STATIC_PACKET = is1_7() || isRemappedVersion() ? null : PACKET_CLASS.newInstance();
             //PlayerInfoData Class
             if (compare(v1_8_R1)) {

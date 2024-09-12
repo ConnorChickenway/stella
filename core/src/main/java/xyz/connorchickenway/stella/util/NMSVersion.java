@@ -47,7 +47,9 @@ public enum NMSVersion {
     v1_19_R3,
     v1_20_R1,
     v1_20_R2,
-    v1_20_R3;
+    v1_20_R3,
+    v1_20_R4,
+    v1_21_R1;
 
     public boolean isEqual(NMSVersion compare) {
         return ordinal() == compare.ordinal();
@@ -59,13 +61,10 @@ public enum NMSVersion {
         String version = null;
         try {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-        } catch (ArrayIndexOutOfBoundsException ignore) {
-
-        }
+        } catch (ArrayIndexOutOfBoundsException ignore) {}
         if (version != null) {
             for (NMSVersion tmp : NMSVersion.class.getEnumConstants())
-                if (tmp.name().compareToIgnoreCase(version) == 0)
-                {
+                if (tmp.name().compareToIgnoreCase(version) == 0) {
                     SERVER_VERSION = tmp;
                     break;
                 }
