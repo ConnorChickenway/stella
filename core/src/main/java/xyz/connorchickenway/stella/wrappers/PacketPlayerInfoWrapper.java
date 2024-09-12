@@ -50,7 +50,7 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
     }
 
     public void addEntries(Collection<Object> collection) {
-        if (isMajor())
+        if (isRemappedVersion())
             set(ENTRIES, packet, collection);
         else
             invokeMethod(ADD_ALL, get(ENTRIES, packet), collection);
@@ -138,7 +138,7 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
                 if (isMajor()) {
                     return PLAYER_INFO_DATA_CONSTRUCTOR.newInstance(
                             uuid != null ? uuid : gameProfile.getId(),
-                            gameProfile.getGameProfile(),
+                            gameProfile != null ? gameProfile.getGameProfile() : null,
                             true,
                             latency,
                             ENUM_GAME_MODE,
@@ -187,7 +187,7 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
                     getLegacyNMSPackageName() + ".PacketPlayOutPlayerInfo");
             ACTION = getDeclaredField(PACKET_CLASS, is1_7() ? "action" : "a");
             ENTRIES = is1_7() ? null : getDeclaredField(PACKET_CLASS, "b");
-            STATIC_PACKET = is1_7() || isMajor() ? null : PACKET_CLASS.newInstance();
+            STATIC_PACKET = is1_7() || isRemappedVersion() ? null : PACKET_CLASS.newInstance();
             //PlayerInfoData Class
             if (compare(v1_8_R1)) {
                 PLAYER_INFO_DATA_CLASS = Class.forName(PACKET_CLASS.getName() + "$" + (isMajor() ?
