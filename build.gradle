@@ -1,8 +1,13 @@
 allprojects {
     version = "0.4"
 	group = 'xyz.connorchickenway.stella'
+}
 
-    repositories {
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'maven-publish'
+
+repositories {
         mavenLocal()
         maven {
             url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
@@ -12,11 +17,6 @@ allprojects {
             }
         }
     }
-}
-
-subprojects {
-	apply plugin: 'java'
-	apply plugin: 'maven-publish'
 	
 	sourceCompatibility = 1.8 // java 8
 	targetCompatibility = 1.8
