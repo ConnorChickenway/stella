@@ -12,6 +12,7 @@ repositories {
         maven {
             url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
         }
+	maven { url = "https://maven.elmakers.com/repository/"}
     }
 	
 	sourceCompatibility = 1.8 // java 8
