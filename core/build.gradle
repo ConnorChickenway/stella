@@ -1,5 +1,6 @@
 plugins {
     id('java')
+    id('maven-publish')
 }
 
 repositories {
@@ -14,3 +15,18 @@ dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
 }
 
+java {
+		withSourcesJar()
+		withJavadocJar()
+	}
+
+	publishing {
+		publications {
+			maven(MavenPublication) {
+				groupId project.group
+				artifactId project.name
+				version project.version
+				from components.java
+			}
+		}
+	}
