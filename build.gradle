@@ -1,20 +1,17 @@
 allprojects {
     version = "0.4"
-	group = 'xyz.connorchickenway.stella'
+	group = 'xyz.connorchickenway'
 }
 
 subprojects {
 	apply plugin: 'java'
 
-repositories {
+    repositories {
         mavenLocal()
-        maven {
-            url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-        }
-	maven { url = "https://maven.elmakers.com/repository/"}
+        mavenCentral()
+        maven { url = "https://maven.elmakers.com/repository/"}
     }
-	
-	sourceCompatibility = 1.8 // java 8
-	targetCompatibility = 1.8
 
+    sourceCompatibility = 1.8
+	targetCompatibility = 1.8
 }
