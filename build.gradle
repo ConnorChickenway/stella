@@ -1,6 +1,6 @@
 allprojects {
     version = "0.4"
-	group = 'xyz.connorchickenway'
+	group = 'xyz.connorchickenway.stella'
 }
 
 subprojects {
