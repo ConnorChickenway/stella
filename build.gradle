@@ -1,12 +1,10 @@
 allprojects {
+    version = "0.3"
+    group = "xyz.connorchickenway.stella"
+
     repositories {
         mavenLocal()
-        maven {
-            url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-            content {
-                includeGroup 'org.bukkit'
-                includeGroup 'org.spigotmc'
-            }
-        }
+        mavenCentral()
+        maven { url = "https://maven.elmakers.com/repository/"}
     }
 }

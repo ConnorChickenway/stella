@@ -1,9 +1,7 @@
 plugins {
     id('java')
+    id('maven-publish')
 }
-
-group = 'xyz.connorchickenway'
-version = '0.3'
 
 repositories {
     maven { url "https://repo.viaversion.com"}
@@ -11,5 +9,23 @@ repositories {
     
 dependencies {
     compileOnly('com.viaversion:viaversion-api:4.9.3-SNAPSHOT')
-    compileOnly 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
+    compileOnly('org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT')
+}
+
+java {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            from components.java
+        }
+    }
 }
