@@ -72,30 +72,31 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
 
     public enum Action {
 
-        ADD_PLAYER(0, "ADD_PLAYER", "a", "a"),
-        UPDATE_LATENCY(2, "UPDATE_LATENCY", "c", "e"),
-        UPDATE_DISPLAY_NAME(3, "UPDATE_DISPLAY_NAME", "d", "f"),
+        ADD_PLAYER(0, "ADD_PLAYER", "a", "a", "ADD_PLAYER"),
+        UPDATE_LATENCY(2, "UPDATE_LATENCY", "c", "e", "UPDATE_LATENCY"),
+        UPDATE_DISPLAY_NAME(3, "UPDATE_DISPLAY_NAME", "d", "f", "UPDATE_DISPLAY_NAME"),
         //this was introduced in 1.19.3;
-        UPDATE_LISTED("d"),
+        UPDATE_LISTED("d", "UPDATE_LISTED"),
         //this has been removed in 1.19.3; they created new packet = ClientboundPlayerInfoRemovePacket;
-        REMOVE_PLAYER(4, "REMOVE_PLAYER", "e", null);
+        REMOVE_PLAYER(4, "REMOVE_PLAYER", "e", null, null);
 
-        private final String legacy, spigotRemapped, major;
+        private final String legacy, spigotRemapped, major, mojangMapped;
         private final int protocolHack;
 
-        Action(String major) {
-            this(-1, null, null, major);
+        Action(String major, String mojangMapped) {
+            this(-1, null, null, major, mojangMapped);
         }
 
-        Action(int protocolHack, String legacy, String spigotRemapped, String major) {
+        Action(int protocolHack, String legacy, String spigotRemapped, String major, String mojangMapped) {
             this.protocolHack = protocolHack;
             this.legacy = legacy;
             this.spigotRemapped = spigotRemapped;
             this.major = major;
+            this.mojangMapped = mojangMapped;
         }
 
         private String field() {
-            return isMajor() ? major : isRemappedVersion() ? spigotRemapped : legacy;
+            return isMojangMapped() ? mojangMapped : isMajor() ? major : isRemappedVersion() ? spigotRemapped : legacy;
         }
 
         public int getProtocolHack() {
@@ -185,24 +186,27 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
                     getNMSPackageName() + ".network.protocol.game." +
                             (isMajor() ? "ClientboundPlayerInfoUpdatePacket" : "PacketPlayOutPlayerInfo") :
                     getLegacyNMSPackageName() + ".PacketPlayOutPlayerInfo");
-            ACTION = getDeclaredField(PACKET_CLASS, is1_7() ? "action" : compare(v1_20_R4) ? "b" : "a");
-            ENTRIES = is1_7() ? null : getDeclaredField(PACKET_CLASS, compare(v1_20_R4) ? "c" : "b");
+            ACTION = getDeclaredField(PACKET_CLASS, is1_7() ? "action" : isMojangMapped() ? "actions" : compare(v1_20_R4) ? "b" : "a");
+            ENTRIES = is1_7() ? null : getDeclaredField(PACKET_CLASS, isMojangMapped() ? "entries" : compare(v1_20_R4) ? "c" : "b");
             STATIC_PACKET = is1_7() || isRemappedVersion() ? null : PACKET_CLASS.newInstance();
             //PlayerInfoData Class
             if (compare(v1_8_R1)) {
-                PLAYER_INFO_DATA_CLASS = Class.forName(PACKET_CLASS.getName() + "$" + (isMajor() ?
-                        "b" :
-                        "PlayerInfoData"));
+                PLAYER_INFO_DATA_CLASS = Class.forName(PACKET_CLASS.getName() + "$" + (
+                        isMojangMapped() ? "Entry" :
+                        isMajor() ? "b" :
+                        "PlayerInfoData")
+                );
                 //EnumGameMode init
                 Class<?> enumGameModeClass = Class.forName(isRemappedVersion() ?
-                        getNMSPackageName() + ".world.level.EnumGamemode" :
+                        getNMSPackageName() + ".world.level." + (isMojangMapped() ? "GameType" : "EnumGamemode") :
                         getLegacyNMSPackageName() + (compare(v1_10_R1) ?
                                 ".EnumGamemode" : (compare(v1_8_R2) ?
                                 ".WorldSettings$EnumGamemode" : ".EnumGamemode")));
                 ENUM_GAME_MODE = enumGameModeClass.getField(compareIsBelow(v1_16_R3) ?
-                        "NOT_SET" : "a").get(null);
-                ENUM_CLASS = getClassForName(PACKET_CLASS.getName() + "$" + (isMajor() ?
-                        "a" : "EnumPlayerInfoAction"));
+                        "NOT_SET" : (isMojangMapped() ? "SURVIVAL" : "a")).get(null);
+                ENUM_CLASS = getClassForName(PACKET_CLASS.getName() + "$" + (
+                        isMojangMapped() ? "Action" :
+                        isMajor() ? "a" : "EnumPlayerInfoAction"));
             }
             else {
                 //

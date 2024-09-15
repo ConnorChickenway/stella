@@ -41,11 +41,19 @@ public class PacketScoreboardTeamWrapper implements PacketWrapper {
         int mode = create ? 0 : 2;
         if (NMSVersion.isRemappedVersion()) {
             parameters = newInstance(PARAMETERS_CLASS);
-            set("a", parameters, newChatComponent(""));
-            set("d", parameters, "always");
-            set("e", parameters, "always");
-            set("f", parameters, CHAT_RESET_FORMAT);
-            set("g", parameters, 0);
+            if (isMojangMapped()) {
+                set("displayName", parameters, newChatComponent(""));
+                set("nametagVisibility", parameters, "always");
+                set("collisionRule", parameters, "always");
+                set("color", parameters, CHAT_RESET_FORMAT);
+                set("options", parameters, 0);
+            }else {
+                set("a", parameters, newChatComponent(""));
+                set("d", parameters, "always");
+                set("e", parameters, "always");
+                set("f", parameters, CHAT_RESET_FORMAT);
+                set("g", parameters, 0);
+            }
             packet = invokeConstructor(PACKET_CONSTRUCTOR, name, mode,
                     Optional.of(parameters), mode != 0 ? Collections.emptyList() : Collections.singletonList(name));
         } else {
@@ -86,8 +94,8 @@ public class PacketScoreboardTeamWrapper implements PacketWrapper {
         try {
             Class<?> PACKET_TEAM_CLASS = Class.forName((isRemappedVersion() ?
                     getNMSPackageName() + ".network.protocol.game" :
-                    getLegacyNMSPackageName()) +
-                    ".PacketPlayOutScoreboardTeam");
+                    getLegacyNMSPackageName()) + "." +
+                    (isMojangMapped() ? "ClientboundSetPlayerTeamPacket" : "PacketPlayOutScoreboardTeam"));
             if (NMSVersion.isRemappedVersion()) {
                 PACKET_CONSTRUCTOR = PACKET_TEAM_CLASS.getDeclaredConstructor(
                         String.class,
@@ -96,11 +104,11 @@ public class PacketScoreboardTeamWrapper implements PacketWrapper {
                         Collection.class
                 );
                 PACKET_CONSTRUCTOR.setAccessible(true);
-                PARAMETERS_CLASS = Class.forName(PACKET_TEAM_CLASS.getName() + "$b");
-                PREFIX = getDeclaredField(PARAMETERS_CLASS, "b");
-                SUFFIX = getDeclaredField(PARAMETERS_CLASS, "c");
-                Class<?> enumChatFormatClass = Class.forName(getNMSPackageName() + ".EnumChatFormat");
-                CHAT_RESET_FORMAT = enumChatFormatClass.getField("v").get(null);
+                PARAMETERS_CLASS = Class.forName(PACKET_TEAM_CLASS.getName() + "$" + (isMojangMapped() ? "Parameters" : "b"));
+                PREFIX = getDeclaredField(PARAMETERS_CLASS, isMojangMapped() ? "playerPrefix" : "b");
+                SUFFIX = getDeclaredField(PARAMETERS_CLASS, isMojangMapped() ? "playerSuffix" : "c");
+                Class<?> enumChatFormatClass = Class.forName(getNMSPackageName() + (isMojangMapped() ? ".ChatFormatting" :".EnumChatFormat"));
+                CHAT_RESET_FORMAT = enumChatFormatClass.getField(isMojangMapped() ? "RESET" : "v").get(null);
             }else {
                 PACKET_CONSTRUCTOR = PACKET_TEAM_CLASS.getConstructor();
                 TEAM_NAME = getDeclaredField(PACKET_TEAM_CLASS, "a");

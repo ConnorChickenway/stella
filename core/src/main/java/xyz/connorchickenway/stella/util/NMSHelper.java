@@ -43,7 +43,7 @@ public class NMSHelper {
     }
 
     public static String getCraftBukkitPackageName() {
-        return "org.bukkit.craftbukkit." + SERVER_VERSION;
+        return "org.bukkit.craftbukkit" + (isMojangMapped() ? "" : "." + SERVER_VERSION);
     }
 
     private static final Method GET_HANDLE, SEND_PACKET;
@@ -71,15 +71,12 @@ public class NMSHelper {
             Class<?> craftPlayer = Class.forName(getCraftBukkitPackageName() + ".entity.CraftPlayer");
             GET_HANDLE = craftPlayer.getMethod("getHandle");
             //EntityPlayer
-            Class<?> entityPlayer = Class.forName(isRemappedVersion() ?
-                    getNMSPackageName() + ".server.level.EntityPlayer" :
+            Class<?> entityPlayer = Class.forName(isRemappedVersion() ? getNMSPackageName() + ".server.level."  + (isMojangMapped() ? "ServerPlayer" : "EntityPlayer") :
                     getLegacyNMSPackageName() + ".EntityPlayer"
             );
             //PlayerConnection
-            PLAYER_CONNECTION = entityPlayer.getField(compare(v1_20_R1) ?
-                    "c" : isRemappedVersion() ?
-                    "b":
-                    "playerConnection");
+            PLAYER_CONNECTION = entityPlayer.getField(isMojangMapped() ? "connection" : compare(v1_20_R1) ? "c" :
+                            isRemappedVersion() ? "b": "playerConnection");
             //SEND_PACKET
             Class<?> plConnectionClass = PLAYER_CONNECTION.getType();
             SEND_PACKET = compareIsBelow(v1_16_R3) ?
@@ -92,30 +89,32 @@ public class NMSHelper {
             if (compare(v1_8_R1)) {
                 //ChatComponent
                 Class<?> baseComponentClass = Class.forName((isRemappedVersion() ?
-                        getNMSPackageName() + ".network.chat.IChatBaseComponent" :
+                        getNMSPackageName() + ".network.chat." + (isMojangMapped() ? "Component" : "IChatBaseComponent") :
                         getLegacyNMSPackageName() + ".IChatBaseComponent") +
-                        (compare(v1_8_R2) ? "$" : ".") + "ChatSerializer");
-                if (compare(v1_20_R4)) {
+                        (compare(v1_8_R2) ? "$" : ".") + (isMojangMapped() ? "Serializer" : "ChatSerializer"));
+                if (compareIsBelow(v1_20_R3)) {
+                    CHAT_COMPONENT = baseComponentClass.getMethod("a", String.class);
+                } else {
                     World world = Bukkit.getWorlds().get(0);
                     try{
-                        for (Method method : world.getClass().getMethods()) {
-                            if (method.getName().equals("getHandle")) {
-                                Object worldServer = method.invoke(world);
-                                for(Method method1 : worldServer.getClass().getMethods()) {
-                                    if (method1.getReturnType().getName().equals("net.minecraft.core.IRegistryCustom")) {
-                                        HOLDER_LOOKUP_PROVIDER = method1.invoke(worldServer);
-                                        break;
-                                    }
+                        Method handleMethod = world.getClass().getMethod("getHandle");
+                        Object worldServer = handleMethod.invoke(world);
+                        if (isMojangMapped()) {
+                            Method registryAccessMethod = worldServer.getClass().getMethod("registryAccess");
+                            HOLDER_LOOKUP_PROVIDER = registryAccessMethod.invoke(worldServer);
+                        } else {
+                            for(Method method1 : worldServer.getClass().getMethods()) {
+                                if (method1.getReturnType().getName().equals("net.minecraft.core.IRegistryCustom")) {
+                                    HOLDER_LOOKUP_PROVIDER = method1.invoke(worldServer);
+                                    break;
                                 }
-                                break;
                             }
                         }
                     }catch (Exception ex) {
                         throw new NullPointerException("Couldn't locate IRegistryCustom method");
                     }
-                    CHAT_COMPONENT = baseComponentClass.getMethod("a", String.class, Class.forName("net.minecraft.core.HolderLookup$a"));
-                } else {
-                    CHAT_COMPONENT = baseComponentClass.getMethod("a", String.class);
+                    CHAT_COMPONENT = baseComponentClass.getMethod((isMojangMapped() ? "fromJson" : "a"), String.class,
+                            Class.forName("net.minecraft.core.HolderLookup$" + ( isMojangMapped() ? "Provider"  :"a")));
                 }
             }
             //getting player protocol version
@@ -181,8 +180,7 @@ public class NMSHelper {
 
     public static Object newChatComponent(String text) {
         final String json = "{\"text\": \"" + text + "\"}";
-        return compare(v1_20_R4) ? invokeStaticMethod(CHAT_COMPONENT, json, HOLDER_LOOKUP_PROVIDER) :
-                invokeStaticMethod(CHAT_COMPONENT, json);
+        return compareIsBelow(v1_20_R3) ? invokeStaticMethod(CHAT_COMPONENT, json) : invokeStaticMethod(CHAT_COMPONENT, json, HOLDER_LOOKUP_PROVIDER);
     }
 
 }

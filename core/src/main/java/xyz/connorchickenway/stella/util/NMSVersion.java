@@ -48,6 +48,7 @@ public enum NMSVersion {
     v1_20_R1,
     v1_20_R2,
     v1_20_R3,
+    MOJANG_MAPPED , // PAPER 1.20.5 > https://docs.papermc.io/paper/dev/internals#reflection
     v1_20_R4,
     v1_21_R1;
 
@@ -68,7 +69,8 @@ public enum NMSVersion {
                     SERVER_VERSION = tmp;
                     break;
                 }
-        }
+        } else
+            SERVER_VERSION = MOJANG_MAPPED;
     }
 
     //They change packets in this version.
@@ -94,6 +96,10 @@ public enum NMSVersion {
 
     public static boolean is1_7() {
         return compareIsBelow(v1_7_R4);
+    }
+
+    public static boolean isMojangMapped() {
+        return SERVER_VERSION.isEqual(MOJANG_MAPPED);
     }
 
 }
