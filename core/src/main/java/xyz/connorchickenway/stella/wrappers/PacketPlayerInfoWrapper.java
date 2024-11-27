@@ -137,15 +137,27 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
         public Object getPlayerData() {
             try {
                 if (isMajor()) {
-                    return PLAYER_INFO_DATA_CONSTRUCTOR.newInstance(
-                            uuid != null ? uuid : gameProfile.getId(),
-                            gameProfile != null ? gameProfile.getGameProfile() : null,
-                            true,
-                            latency,
-                            ENUM_GAME_MODE,
-                            displayName,
-                            null
-                    );
+                    if (compare(v1_21_R2) || PaperVersion.is1_21_3())
+                        return PLAYER_INFO_DATA_CONSTRUCTOR.newInstance(
+                                uuid != null ? uuid : gameProfile.getId(),
+                                gameProfile != null ? gameProfile.getGameProfile() : null,
+                                true,
+                                latency,
+                                ENUM_GAME_MODE,
+                                displayName,
+                                0,
+                                null
+                        );
+                    else
+                        return PLAYER_INFO_DATA_CONSTRUCTOR.newInstance(
+                                uuid != null ? uuid : gameProfile.getId(),
+                                gameProfile != null ? gameProfile.getGameProfile() : null,
+                                true,
+                                latency,
+                                ENUM_GAME_MODE,
+                                displayName,
+                                null
+                        );
                 } else
                 if (isRemappedVersion())
                     return PLAYER_INFO_DATA_CONSTRUCTOR.newInstance(

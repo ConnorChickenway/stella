@@ -75,7 +75,7 @@ public class NMSHelper {
                     getLegacyNMSPackageName() + ".EntityPlayer"
             );
             //PlayerConnection
-            PLAYER_CONNECTION = entityPlayer.getField(isMojangMapped() ? "connection" : compare(v1_20_R1) ? "c" :
+            PLAYER_CONNECTION = entityPlayer.getField(isMojangMapped() ? "connection" : compare(v1_21_R2) ? "f" : compare(v1_20_R1) ? "c" :
                             isRemappedVersion() ? "b": "playerConnection");
             //SEND_PACKET
             Class<?> plConnectionClass = PLAYER_CONNECTION.getType();

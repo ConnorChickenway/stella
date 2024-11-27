@@ -50,13 +50,15 @@ public enum NMSVersion {
     v1_20_R3,
     MOJANG_MAPPED , // PAPER 1.20.5 > https://docs.papermc.io/paper/dev/internals#reflection
     v1_20_R4,
-    v1_21_R1;
+    v1_21_R1,
+    v1_21_R2;
 
     public boolean isEqual(NMSVersion compare) {
         return ordinal() == compare.ordinal();
     }
 
     public static NMSVersion SERVER_VERSION;
+    public static PaperVersion PAPER_VERSION;
 
     static {
         String version = null;
@@ -69,11 +71,13 @@ public enum NMSVersion {
                     SERVER_VERSION = tmp;
                     break;
                 }
-        } else
+        } else {
             SERVER_VERSION = MOJANG_MAPPED;
+            PAPER_VERSION = PaperVersion.search();
+        }
     }
 
-    //They change packets in this version.
+    //They changed packets in this version.
     public static boolean isMajor() {
         return compare(NMSVersion.v1_19_R2);
     }
@@ -100,6 +104,38 @@ public enum NMSVersion {
 
     public static boolean isMojangMapped() {
         return SERVER_VERSION.isEqual(MOJANG_MAPPED);
+    }
+
+    public enum PaperVersion {
+        _1_20_5("1.20.5"),
+        _1_20_6("1.20.6"),
+        _1_21("1.21"),
+        _1_21_1("1.21.1"),
+        _1_21_3("1.21.3");
+
+        private final String serverVersion;
+
+        PaperVersion(String serverVersion) {
+            this.serverVersion = serverVersion;
+        }
+
+        public String getServerVersion() {
+            return serverVersion;
+        }
+
+        public static PaperVersion search() {
+            String bukkitVersion = Bukkit.getBukkitVersion().split("-")[0];
+            for(PaperVersion version : values())
+                if (bukkitVersion.equals(version.getServerVersion()))
+                    return version;
+            return null;
+        }
+
+        //they modified ClientboundPlayerInfoUpdate packet and added a new argument into constructor
+        public static boolean is1_21_3() {
+            return PAPER_VERSION == PaperVersion._1_21_3;
+        }
+
     }
 
 }
