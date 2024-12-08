@@ -1,5 +1,5 @@
 allprojects {
-    version = "0.6"
+    version = "0.7"
     group = "xyz.connorchickenway.stella"
 
     repositories {
