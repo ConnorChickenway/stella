@@ -51,7 +51,8 @@ public enum NMSVersion {
     MOJANG_MAPPED , // PAPER 1.20.5 > https://docs.papermc.io/paper/dev/internals#reflection
     v1_20_R4,
     v1_21_R1,
-    v1_21_R2;
+    v1_21_R2,
+    v1_21_R3;
 
     public boolean isEqual(NMSVersion compare) {
         return ordinal() == compare.ordinal();
@@ -111,7 +112,9 @@ public enum NMSVersion {
         _1_20_6("1.20.6"),
         _1_21("1.21"),
         _1_21_1("1.21.1"),
-        _1_21_3("1.21.3");
+        //they modified ClientboundPlayerInfoUpdate packet and added a new argument into constructor
+        _1_21_3("1.21.3"),
+        _1_21_4("1.21.4");
 
         private final String serverVersion;
 
@@ -131,9 +134,8 @@ public enum NMSVersion {
             return null;
         }
 
-        //they modified ClientboundPlayerInfoUpdate packet and added a new argument into constructor
-        public static boolean is1_21_3() {
-            return PAPER_VERSION == PaperVersion._1_21_3;
+        public static boolean isVersion(PaperVersion paperVersion) {
+            return PAPER_VERSION == paperVersion;
         }
 
     }
