@@ -138,7 +138,7 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
         public Object getPlayerData() {
             try {
                 if (isMajor()) {
-                    if (compare(v1_21_R3) || PaperVersion.isVersion(_1_21_4) ) {
+                    if (compare(v1_21_R3) || PaperVersion.ordinal(_1_21_4) ) {
                         return PLAYER_INFO_DATA_CONSTRUCTOR.newInstance(
                                 uuid != null ? uuid : gameProfile.getId(),
                                 gameProfile != null ? gameProfile.getGameProfile() : null,
