@@ -55,8 +55,6 @@ public class NMSHelper {
     //1.7.10 method for remove players in tablist
     private static Method _1_7_REMOVE_PLAYER;
     private static Method CHAT_COMPONENT;
-    //1.20.5 >
-    private static Object HOLDER_LOOKUP_PROVIDER;
 
     static {
         if (SERVER_VERSION == null) {
@@ -75,7 +73,7 @@ public class NMSHelper {
                     getLegacyNMSPackageName() + ".EntityPlayer"
             );
             //PlayerConnection
-            PLAYER_CONNECTION = entityPlayer.getField(isMojangMapped() ? "connection" : compare(v1_21_R2) ? "f" : compare(v1_20_R1) ? "c" :
+            PLAYER_CONNECTION = entityPlayer.getField(isMojangMapped() ? "connection" : compare(v1_21_R4) ? "g" : compare(v1_21_R2) ? "f" : compare(v1_20_R1) ? "c" :
                             isRemappedVersion() ? "b": "playerConnection");
             //SEND_PACKET
             Class<?> plConnectionClass = PLAYER_CONNECTION.getType();
@@ -88,33 +86,15 @@ public class NMSHelper {
                             .findFirst().orElseThrow(NoSuchMethodError::new);
             if (compare(v1_8_R1)) {
                 //ChatComponent
-                Class<?> baseComponentClass = Class.forName((isRemappedVersion() ?
-                        getNMSPackageName() + ".network.chat." + (isMojangMapped() ? "Component" : "IChatBaseComponent") :
-                        getLegacyNMSPackageName() + ".IChatBaseComponent") +
-                        (compare(v1_8_R2) ? "$" : ".") + (isMojangMapped() ? "Serializer" : "ChatSerializer"));
-                if (compareIsBelow(v1_20_R3)) {
+                if (compare(v1_20_R4) || isMojangMapped()) {
+                    Class<?> baseComponentClass = Class.forName(getCraftBukkitPackageName() + ".util.CraftChatMessage");
+                    CHAT_COMPONENT = baseComponentClass.getMethod("fromJSON", String.class);
+                }else {
+                    Class<?> baseComponentClass = Class.forName((isRemappedVersion() ?
+                            getNMSPackageName() + ".network.chat." + (isMojangMapped() ? "Component" : "IChatBaseComponent") :
+                            getLegacyNMSPackageName() + ".IChatBaseComponent") +
+                            (compare(v1_8_R2) ? "$" : ".") + (isMojangMapped() ? "Serializer" : "ChatSerializer"));
                     CHAT_COMPONENT = baseComponentClass.getMethod("a", String.class);
-                } else {
-                    World world = Bukkit.getWorlds().get(0);
-                    try{
-                        Method handleMethod = world.getClass().getMethod("getHandle");
-                        Object worldServer = handleMethod.invoke(world);
-                        if (isMojangMapped()) {
-                            Method registryAccessMethod = worldServer.getClass().getMethod("registryAccess");
-                            HOLDER_LOOKUP_PROVIDER = registryAccessMethod.invoke(worldServer);
-                        } else {
-                            for(Method method1 : worldServer.getClass().getMethods()) {
-                                if (method1.getReturnType().getName().equals("net.minecraft.core.IRegistryCustom")) {
-                                    HOLDER_LOOKUP_PROVIDER = method1.invoke(worldServer);
-                                    break;
-                                }
-                            }
-                        }
-                    }catch (Exception ex) {
-                        throw new NullPointerException("Couldn't locate IRegistryCustom method");
-                    }
-                    CHAT_COMPONENT = baseComponentClass.getMethod((isMojangMapped() ? "fromJson" : "a"), String.class,
-                            Class.forName("net.minecraft.core.HolderLookup$" + ( isMojangMapped() ? "Provider"  :"a")));
                 }
             }
             //getting player protocol version
@@ -180,7 +160,7 @@ public class NMSHelper {
 
     public static Object newChatComponent(String text) {
         final String json = "{\"text\": \"" + text + "\"}";
-        return compareIsBelow(v1_20_R3) ? invokeStaticMethod(CHAT_COMPONENT, json) : invokeStaticMethod(CHAT_COMPONENT, json, HOLDER_LOOKUP_PROVIDER);
+        return invokeStaticMethod(CHAT_COMPONENT, json);
     }
 
 }

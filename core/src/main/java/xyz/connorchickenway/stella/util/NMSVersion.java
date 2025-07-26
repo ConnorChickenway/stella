@@ -53,7 +53,8 @@ public enum NMSVersion {
     v1_21_R1,
     v1_21_R2,
     v1_21_R3,
-    v1_21_R4;
+    v1_21_R4,
+    v1_21_R5;
 
     public boolean isEqual(NMSVersion compare) {
         return ordinal() == compare.ordinal();
@@ -116,7 +117,10 @@ public enum NMSVersion {
         //they modified ClientboundPlayerInfoUpdate packet and added a new argument into constructor
         _1_21_3("1.21.3"),
         _1_21_4("1.21.4"),
-        _1_21_5("1.21.5");
+        _1_21_5("1.21.5"),
+        _1_21_6("1.21.6"),
+        _1_21_7("1.21.7"),
+        _1_21_8("1.21.8");
 
         private final String serverVersion;
 
@@ -141,7 +145,7 @@ public enum NMSVersion {
         }
 
         public static boolean ordinal(PaperVersion paperVersion) {
-            return PAPER_VERSION.ordinal() >= paperVersion.ordinal();
+            return PAPER_VERSION != null && PAPER_VERSION.ordinal() >= paperVersion.ordinal();
         }
 
     }
