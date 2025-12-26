@@ -19,6 +19,9 @@
 
 package xyz.connorchickenway.stella.wrappers;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import xyz.connorchickenway.stella.tab.entry.TabEntry;
 import xyz.connorchickenway.stella.tab.skin.Skin;
 
@@ -36,21 +39,24 @@ public class GameProfileWrapper {
     private final String name;
     private final Object gameProfile;
 
-    public GameProfileWrapper(UUID uuid, String name) {
+    public GameProfileWrapper(UUID uuid, String name, Skin skin) {
         this.uuid = uuid;
         this.name = name;
-        this.gameProfile = invokeConstructor(GAME_PROFILE_CONSTRUCTOR, uuid, name);
-    }
+        if(!isNewVersion()) {
+            this.gameProfile = invokeConstructor(GAME_PROFILE_CONSTRUCTOR, uuid, name);
+            if (skin != null)
+                invokeMethod(PUT_PROPERTY,
+                        invokeMethod(GET_PROPERTIES, gameProfile),
+                        "textures",
+                        invokeConstructor(PROPERTY_CONSTRUCTOR, "textures", skin.getValue(), skin.getSignature()));
+        }else
+        if (skin != null) {
+            LinkedHashMultimap<String, Property> map = LinkedHashMultimap.create();
+            map.put("textures", (Property) invokeConstructor(PROPERTY_CONSTRUCTOR, "textures", skin.getValue(), skin.getSignature()));
+            gameProfile = invokeConstructor(GAME_PROFILE_WITH_MAP_CONSTRUCTOR, uuid, name, invokeConstructor(PROPERTY_MAP_CLASS, map));
+        }else
+            this.gameProfile = invokeConstructor(GAME_PROFILE_CONSTRUCTOR, uuid, name);
 
-    public void setSkin(Skin skin) {
-        setSkin(skin.getValue(), skin.getSignature());
-    }
-
-    public void setSkin(String value, String signature) {
-        invokeMethod(PUT_PROPERTY,
-                invokeMethod(GET_PROPERTIES, gameProfile),
-                "textures",
-                invokeConstructor(PROPERY_CONSTRUCTOR, "textures", value, signature));
     }
 
     public UUID getId() {
@@ -74,23 +80,30 @@ public class GameProfileWrapper {
     }
 
     public static GameProfileWrapper getGameProfile(UUID uuid, String name, Skin skin) {
-        GameProfileWrapper gameProfileWrapper = new GameProfileWrapper(uuid, name);
-        if (skin != null)
-            gameProfileWrapper.setSkin(skin.getValue(), skin.getSignature());
-        return gameProfileWrapper;
+        return new GameProfileWrapper(uuid, name, skin);
     }
 
-    private static final Constructor<?> GAME_PROFILE_CONSTRUCTOR, PROPERY_CONSTRUCTOR;
+    private static boolean isNewVersion() {
+        return PaperVersion.isVersion(PaperVersion._1_21_10) || compare(v1_21_R6);
+    }
+
+    private static final Constructor<?> GAME_PROFILE_CONSTRUCTOR, PROPERTY_CONSTRUCTOR;
     private static final Method GET_PROPERTIES, PUT_PROPERTY;
+    private static final Class<?> PROPERTY_CLASS;
+    private static Constructor<?> PROPERTY_MAP_CLASS, GAME_PROFILE_WITH_MAP_CONSTRUCTOR;
 
     static {
         try {
             final String _package_ = is1_7() ? "net.minecraft.util." : "";
             Class<?> gameProfileClass = Class.forName(_package_ + "com.mojang.authlib.GameProfile");
+            if (isNewVersion()) {
+                GAME_PROFILE_WITH_MAP_CONSTRUCTOR = gameProfileClass.getConstructor(UUID.class, String.class, PropertyMap.class);
+                PROPERTY_MAP_CLASS = Class.forName("com.mojang.authlib.properties.PropertyMap").getConstructors()[0];
+            }
             GAME_PROFILE_CONSTRUCTOR = gameProfileClass.getConstructor(UUID.class, String.class);
-            GET_PROPERTIES =  gameProfileClass.getMethod("getProperties");
-            Class<?> propertyClass = Class.forName(_package_ + "com.mojang.authlib.properties.Property");
-            PROPERY_CONSTRUCTOR = propertyClass.getConstructor(String.class, String.class, String.class);
+            GET_PROPERTIES =  gameProfileClass.getMethod(isNewVersion() ? "properties" : "getProperties");
+            PROPERTY_CLASS = Class.forName(_package_ + "com.mojang.authlib.properties.Property");
+            PROPERTY_CONSTRUCTOR = PROPERTY_CLASS.getConstructor(String.class, String.class, String.class);
             Class<?> propertyMapClass = GET_PROPERTIES.getReturnType();
             PUT_PROPERTY = Arrays.stream(propertyMapClass.getMethods()).filter(method -> method.getName().equals("put"))
                     .findFirst().orElseThrow(RuntimeException::new);

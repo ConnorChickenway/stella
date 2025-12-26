@@ -5,11 +5,14 @@ plugins {
 
 repositories {
     maven { url "https://repo.viaversion.com"}
+    maven { url "https://libraries.minecraft.net/" }
 }
     
 dependencies {
     compileOnly('com.viaversion:viaversion-api:4.9.3-SNAPSHOT')
     compileOnly('org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT')
+    compileOnly('com.google.guava:guava:33.5.0-jre')
+    compileOnly('com.mojang:authlib:1.5.21')
 }
 
 java {

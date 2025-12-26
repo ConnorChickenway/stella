@@ -54,7 +54,8 @@ public enum NMSVersion {
     v1_21_R2,
     v1_21_R3,
     v1_21_R4,
-    v1_21_R5;
+    v1_21_R5,
+    v1_21_R6;
 
     public boolean isEqual(NMSVersion compare) {
         return ordinal() == compare.ordinal();
@@ -120,7 +121,9 @@ public enum NMSVersion {
         _1_21_5("1.21.5"),
         _1_21_6("1.21.6"),
         _1_21_7("1.21.7"),
-        _1_21_8("1.21.8");
+        _1_21_8("1.21.8"),
+        _1_21_9("1.21.9"),
+        _1_21_10("1.21.10");
 
         private final String serverVersion;
 
