@@ -84,7 +84,7 @@ public class GameProfileWrapper {
     }
 
     private static boolean isNewVersion() {
-        return PaperVersion.ordinal(PaperVersion._1_21_10) || compare(v1_21_R6);
+        return MinecraftVersion.ordinal(MinecraftVersion._1_21_10) || compare(v1_21_R6);
     }
 
     private static final Constructor<?> GAME_PROFILE_CONSTRUCTOR, PROPERTY_CONSTRUCTOR;

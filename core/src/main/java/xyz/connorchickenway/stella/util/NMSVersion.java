@@ -63,7 +63,7 @@ public enum NMSVersion {
     }
 
     public static NMSVersion SERVER_VERSION;
-    public static PaperVersion PAPER_VERSION;
+    public static MinecraftVersion MINECRAFT_VERSION;
 
     static {
         String version = null;
@@ -78,7 +78,7 @@ public enum NMSVersion {
                 }
         } else {
             SERVER_VERSION = MOJANG_MAPPED;
-            PAPER_VERSION = PaperVersion.search();
+            MINECRAFT_VERSION = MinecraftVersion.search();
         }
     }
 
@@ -111,7 +111,7 @@ public enum NMSVersion {
         return SERVER_VERSION.isEqual(MOJANG_MAPPED);
     }
 
-    public enum PaperVersion {
+    public enum MinecraftVersion {
         _1_20_5("1.20.5"),
         _1_20_6("1.20.6"),
         _1_21("1.21"),
@@ -125,11 +125,13 @@ public enum NMSVersion {
         _1_21_8("1.21.8"),
         _1_21_9("1.21.9"),
         _1_21_10("1.21.10"),
-        _1_21_11("1.21.11");
+        _1_21_11("1.21.11"),
+        _26_1_2("26.1.2"),
+        _26_2("26.2");
 
         private final String serverVersion;
 
-        PaperVersion(String serverVersion) {
+        MinecraftVersion(String serverVersion) {
             this.serverVersion = serverVersion;
         }
 
@@ -137,20 +139,23 @@ public enum NMSVersion {
             return serverVersion;
         }
 
-        public static PaperVersion search() {
-            String bukkitVersion = Bukkit.getBukkitVersion().split("-")[0];
-            for(PaperVersion version : values())
-                if (bukkitVersion.equals(version.getServerVersion()))
-                    return version;
+        public static MinecraftVersion search() {
+            String serverVersion = Bukkit.getBukkitVersion().split("-")[0];
+            System.out.println(serverVersion);
+            if (serverVersion != null) {
+                for(MinecraftVersion version : values())
+                    if (serverVersion.equals(version.getServerVersion()))
+                        return version;
+            }
             return null;
         }
 
-        public static boolean isVersion(PaperVersion paperVersion) {
-            return PAPER_VERSION == paperVersion;
+        public static boolean isVersion(MinecraftVersion minecraftVersion) {
+            return MINECRAFT_VERSION == minecraftVersion;
         }
 
-        public static boolean ordinal(PaperVersion paperVersion) {
-            return PAPER_VERSION != null && PAPER_VERSION.ordinal() >= paperVersion.ordinal();
+        public static boolean ordinal(MinecraftVersion minecraftVersion) {
+            return MINECRAFT_VERSION != null && MINECRAFT_VERSION.ordinal() >= minecraftVersion.ordinal();
         }
 
     }

@@ -27,7 +27,7 @@ import java.util.UUID;
 import static xyz.connorchickenway.stella.util.NMSHelper.*;
 import static xyz.connorchickenway.stella.util.NMSVersion.*;
 import static xyz.connorchickenway.stella.util.ReflectionHelper.*;
-import static xyz.connorchickenway.stella.util.NMSVersion.PaperVersion.*;
+import static xyz.connorchickenway.stella.util.NMSVersion.MinecraftVersion.*;
 
 public class PacketPlayerInfoWrapper implements PacketWrapper {
 
@@ -138,7 +138,7 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
         public Object getPlayerData() {
             try {
                 if (isMajor()) {
-                    if (compare(v1_21_R3) || PaperVersion.ordinal(_1_21_4) ) {
+                    if (compare(v1_21_R3) || MinecraftVersion.ordinal(_1_21_4) ) {
                         return PLAYER_INFO_DATA_CONSTRUCTOR.newInstance(
                                 uuid != null ? uuid : gameProfile.getId(),
                                 gameProfile != null ? gameProfile.getGameProfile() : null,
@@ -151,7 +151,7 @@ public class PacketPlayerInfoWrapper implements PacketWrapper {
                                 null
                         );
                     }else
-                    if (compare(v1_21_R2) || PaperVersion.isVersion(_1_21_3))
+                    if (compare(v1_21_R2) || MinecraftVersion.isVersion(_1_21_3))
                         return PLAYER_INFO_DATA_CONSTRUCTOR.newInstance(
                                 uuid != null ? uuid : gameProfile.getId(),
                                 gameProfile != null ? gameProfile.getGameProfile() : null,
